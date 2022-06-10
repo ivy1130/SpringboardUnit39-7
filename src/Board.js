@@ -29,20 +29,32 @@ import "./Board.css";
 
 function Board({ nrows, ncols, chanceLightStartsOn }) {
   const [board, setBoard] = useState(createBoard());
+  hasWon()
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
   function createBoard() {
     let initialBoard = [];
-    // TODO: create array-of-arrays of true/false values
+    for (let y = 0; y < nrows; y++) {
+      let row = [];
+      for (let x = 0; x < ncols; x++) {
+        row.push(Math.random() < chanceLightStartsOn);
+      }
+      initialBoard.push(row);
+    }
     return initialBoard;
   }
 
   function hasWon() {
     // TODO: check the board in state to determine whether the player has won.
+    const winCheck = board.filter(row => row.includes(false))
+    if (winCheck.length === 0) {
+      showWinMessage()
+    }
   }
 
   function flipCellsAround(coord) {
     setBoard(oldBoard => {
+      // takes string "y-x" and turns it into coordiante variables y and x
       const [y, x] = coord.split("-").map(Number);
 
       const flipCell = (y, x, boardCopy) => {
@@ -55,19 +67,43 @@ function Board({ nrows, ncols, chanceLightStartsOn }) {
 
       // TODO: Make a (deep) copy of the oldBoard
 
+      const boardCopy = [...oldBoard]
+
       // TODO: in the copy, flip this cell and the cells around it
 
+      flipCell(y, x, boardCopy)
+      flipCell(y, x+1, boardCopy)
+      flipCell(y, x-1, boardCopy)
+      flipCell(y+1, x, boardCopy)
+      flipCell(y-1, x, boardCopy)
+
       // TODO: return the copy
+
+      return boardCopy
     });
   }
 
   // if the game is won, just show a winning msg & render nothing else
 
-  // TODO
+  function showWinMessage() {
+    return alert("CONGRATS! YOU WON!")
+  }
 
   // make table board
 
-  // TODO
+  return (
+    <table className="Board">
+      <tbody>
+        {board.map((row, rowIdx) => (
+          <tr key={rowIdx}>
+            {row.map((cell, cellIdx) => (
+              <Cell isLit={cell} x={cellIdx} y={rowIdx} flipCellsAroundMe={flipCellsAround} key={`${rowIdx}-${cellIdx}`}/>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
 }
 
 export default Board;
